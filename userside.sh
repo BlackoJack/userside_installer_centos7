@@ -175,10 +175,10 @@ Set root password? \[Y/n\] "
 send -- "Y\r"
 expect -exact "Y\r
 New password: "
-send -- "$mysq_root_passwd\r"
+send "$mysq_root_passwd\n"
 expect -exact "\r
 Re-enter new password: "
-send -- "$mysq_root_passwd\r"
+send "$mysq_root_passwd\n"
 expect -exact "\r
 Password updated successfully!\r
 Reloading privilege tables..\r
