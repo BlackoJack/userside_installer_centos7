@@ -138,8 +138,8 @@ set_lang(){
 
 settings_postgres(){
 /usr/bin/expect<<EOF
-    spawn sudo -u postgres createuser userside -P
     log_user 0
+    spawn sudo -u postgres createuser userside -P
     expect "Enter password for new role:"
     send "$psql_passwd\n"
     expect "Enter it again:"
@@ -152,83 +152,11 @@ EOF
 
 settings_mysql(){
 
-/usr/bin/expect<<EOF
-spawn mysql_secure_installation
-log_user 0
-match_max 100000
-expect -exact "\r
-NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MariaDB\r
-      SERVERS IN PRODUCTION USE!  PLEASE READ EACH STEP CAREFULLY!\r
-\r
-In order to log into MariaDB to secure it, we'll need the current\r
-password for the root user.  If you've just installed MariaDB, and\r
-you haven't set the root password yet, the password will be blank,\r
-so you should just press enter here.\r
-\r
-Enter current password for root (enter for none): "
-send -- "\r"
-expect -exact "\r
-OK, successfully used password, moving on...\r
-\r
-Setting the root password ensures that nobody can log into the MariaDB\r
-root user without the proper authorisation.\r
-\r
-Set root password? \[Y/n\] "
-send -- "Y\r"
-expect -exact "Y\r
-New password: "
-send -- "$mysq_root_passwd\r"
-expect -exact "\r
-Re-enter new password: "
-send -- "$mysq_root_passwd\r"
-expect -exact "\r
-Password updated successfully!\r
-Reloading privilege tables..\r
- ... Success!\r
-\r
-\r
-By default, a MariaDB installation has an anonymous user, allowing anyone\r
-to log into MariaDB without having to have a user account created for\r
-them.  This is intended only for testing, and to make the installation\r
-go a bit smoother.  You should remove them before moving into a\r
-production environment.\r
-\r
-Remove anonymous users? \[Y/n\] "
-send -- "Y\r"
-expect -exact "Y\r
- ... Success!\r
-\r
-Normally, root should only be allowed to connect from 'localhost'.  This\r
-ensures that someone cannot guess at the root password from the network.\r
-\r
-Disallow root login remotely? \[Y/n\] "
-send -- "Y\r"
-expect -exact "Y\r
- ... Success!\r
-\r
-By default, MariaDB comes with a database named 'test' that anyone can\r
-access.  This is also intended only for testing, and should be removed\r
-before moving into a production environment.\r
-\r
-Remove test database and access to it? \[Y/n\] "
-send -- "Y\r"
-expect -exact "Y\r
- - Dropping test database...\r
- ... Success!\r
- - Removing privileges on test database...\r
- ... Success!\r
-\r
-Reloading the privilege tables will ensure that all changes made so far\r
-will take effect immediately.\r
-\r
-Reload privilege tables now? \[Y/n\] "
-send -- "Y\r"
-expect eof
-EOF
+	mysqladmin -u root password $mysql_root_passwd
 
 /usr/bin/expect<<EOF
-    spawn mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
     log_user 0
+    spawn mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
     expect "Enter password:"
     send "$mysql_root_passwd\n"
     expect eof
