@@ -156,7 +156,7 @@ settings_mysql(){
 
 /usr/bin/expect<<EOF
     log_user 0
-    spawn mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    spawn mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci; CREATE USER 'userside'@'localhost' IDENTIFIED BY '$mysql_passwd'; GRANT ALL PRIVILEGES ON \`userside\` . * TO 'userside'@'localhost'; FLUSH PRIVILEGES;"
     expect "Enter password:"
     send "$mysql_root_passwd\n"
     expect eof
