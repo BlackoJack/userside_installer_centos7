@@ -2,7 +2,6 @@
 #
 # Скрипт установки Userside
 #
-#
 
 spinner() {
     local i sp n
