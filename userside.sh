@@ -139,6 +139,7 @@ set_lang(){
 settings_postgres(){
 /usr/bin/expect<<EOF
     spawn sudo -u postgres createuser userside -P
+    log_user 0
     expect "Enter password for new role:"
     send "$psql_passwd\n"
     expect "Enter it again:"
@@ -153,6 +154,7 @@ settings_mysql(){
 
 /usr/bin/expect<<EOF
 spawn mysql_secure_installation
+log_user 0
 match_max 100000
 expect -exact "\r
 NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MariaDB\r
@@ -226,6 +228,7 @@ EOF
 
 /usr/bin/expect<<EOF
     spawn mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    log_user 0
     expect "Enter password:"
     send "$mysql_root_passwd\n"
     expect eof
