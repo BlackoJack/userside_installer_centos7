@@ -266,7 +266,7 @@ spinner &
 set_lang
 install_all
 enable_all
-site_add $domain
+site_add $domain $admin_email
 run_all
 settings_postgres $psql_passwd
 settings_mysql $mysql_root_passwd $mysql_passwd
