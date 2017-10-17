@@ -38,14 +38,14 @@ install_apache(){
 
 install_mysql(){
   cat <<EOF > /etc/yum.repos.d/mariadb.repo
-    [mariadb]
-    name = MariaDB
-    baseurl = http://yum.mariadb.org/10.2/centos7-amd64
-    gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-    gpgcheck=1
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.2/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
 EOF
 	rpm --quiet --import https://yum.mariadb.org/RPM-GPG-KEY-MariaDB > /dev/null
-  yum -y -q install MariaDB-server MariaDB-client > /dev/null
+  	yum -y -q install MariaDB-server MariaDB-client > /dev/null
 }
 
 install_postgres(){
@@ -150,9 +150,35 @@ EOF
 }
 
 settings_mysql(){
-	mysql_secure_installation
-	echo "Введите ваш пароль от MySQL"
-	mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+
+/usr/bin/expect<<EOF
+    spawn mysql_secure_installation
+    expect "Enter current password for root (enter for none):"
+    send "\n"
+    expect "Set root password? [Y/n]"
+    send "Y\n"
+    expect "New password:"
+    send "$mysql_root_passwd\n"
+    expect "Re-enter new password:"
+    send "$mysql_root_passwd\n"
+    expect "Remove anonymous users? [Y/n]"
+    send "Y\n"
+    expect "Disallow root login remotely? [Y/n]"
+    send "Y\n"
+    expect "Remove test database and access to it? [Y/n]"
+    send "Y\n"
+    expect "Reload privilege tables now? [Y/n]"
+    send "Y\n"
+    expect eof
+EOF
+
+/usr/bin/expect<<EOF
+    spawn mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    expect "Enter password:"
+    send "$mysql_root_passwd\n"
+    expect eof
+EOF
+
 }
 
 settings_crontab(){
@@ -164,8 +190,16 @@ settings_crontab(){
 	domain="${input_domain:-$domain}"
 
 	psql_passwd="ChangeMeNow"
-	read -e -i "$psql_passwd" -p "Укажите пароль Postgres: " input_psql_passwd
+	read -e -i "$psql_passwd" -p "Укажите пароль Postgres(пользователь userside): " input_psql_passwd
 	psql_passwd="${input_psql_passwd:-$psql_passwd}"
+    
+    mysql_root_passwd="ChangeMeNow"
+	read -e -i "$mysql_root_passwd" -p "Укажите пароль MySQL(пользователь root): " input_mysql_root_passwd
+	mysql_root_passwd="${input_mysql_root_passwd:-$mysql_root_passwd}"
+
+    mysql_passwd="ChangeMeNow"
+	read -e -i "$mysql_passwd" -p "Укажите пароль MySQL(пользователь userside): " input_mysql_passwd
+	mysql_passwd="${input_mysql_passwd:-$mysql_passwd}"
 
 printf 'Выполняется установка и настройка компонентов '
 spinner &
@@ -177,10 +211,9 @@ site_add $domain
 run_all
 settings_postgres $psql_passwd
 settings_crontab
-
+settings_mysql
 
 kill "$!" > /dev/null # kill the spinner
 printf '\n'
 
-settings_mysql
 install_userside
