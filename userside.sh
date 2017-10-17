@@ -61,7 +61,17 @@ install_postgis(){
 
 install_userside(){
 	cd /var/www/userside && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
-	echo "Начинается установка UserSide. Базы находятся локально (host: localhost). Имена баз данных - userside (В postgres и в MySQL). Пароли были заданы ранее"
+    echo "Воспользуйтесь этими данными, для установки Userside:"
+	echo "Хост MySQL: localhost"
+    echo "Порт MySQL: 3306"
+    echo "Пользователь MySQL: "$mysql_user
+    echo "Пароль MySQL: "$mysql_passwd
+    echo "База MySQL: "$mysql_db
+    echo "Хост Postgres: localhost"
+    echo "Порт Postgres: 5042"
+    echo "Пользователь Postgres: "$psql_user
+    echo "Пароль Postgres: "$psql_passwd
+    echo "База Postgres: "$psql_db
 	cd /var/www/userside && php userside_install.phar
 	chown -hR apache:apache /var/www/userside > /dev/null
 }
@@ -139,15 +149,15 @@ set_lang(){
 settings_postgres(){
 /usr/bin/expect<<EOF
     log_user 0
-    spawn sudo -u postgres createuser userside -P
+    spawn sudo -u postgres createuser $psql_user -P
     expect "Enter password for new role:"
     send "$psql_passwd\n"
     expect "Enter it again:"
     send "$psql_passwd\n"
     expect eof
 EOF
-	sudo -u postgres createdb -e -E "UTF-8" -l "ru_RU.UTF-8" -O userside -T template0 userside > /dev/null
-	sudo -u postgres psql -d userside -c "CREATE EXTENSION postgis" > /dev/null
+	sudo -u postgres createdb -e -E "UTF-8" -l "ru_RU.UTF-8" -O $psql_db -T template0 $psql_db > /dev/null
+	sudo -u postgres psql -d $psql_db -c "CREATE EXTENSION postgis" > /dev/null
 }
 
 settings_mysql(){
@@ -156,7 +166,7 @@ settings_mysql(){
 
 /usr/bin/expect<<EOF
     log_user 0
-    spawn mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci; CREATE USER 'userside'@'localhost' IDENTIFIED BY '$mysql_passwd'; GRANT ALL PRIVILEGES ON \`userside\` . * TO 'userside'@'localhost'; FLUSH PRIVILEGES;"
+    spawn mysql -uroot -p -e "CREATE DATABASE \`$mysql_db\` CHARACTER SET utf8 COLLATE utf8_general_ci; CREATE USER '$mysql_user'@'localhost' IDENTIFIED BY '$mysql_passwd'; GRANT ALL PRIVILEGES ON \`$mysql_db\` . * TO '$mysql_user'@'localhost'; FLUSH PRIVILEGES;"
     expect "Enter password:"
     send "$mysql_root_passwd\n"
     expect eof
@@ -175,17 +185,33 @@ settings_crontab(){
     admin_email="admin@sibdata.ru"
 	read -e -i "$admin_email" -p "E-Mail администратора: " input_admin_email
 	admin_email="${input_admin_email:-$admin_email}"
+    
+    psql_user="userside"
+	read -e -i "$psql_user" -p "Пользователь Postgres: " input_psql_user
+	psql_user="${input_psql_user:-$psql_user}"
+    
+    psql_db="userside"
+	read -e -i "$psql_db" -p "База Postgres: " input_psql_db
+	psql_db="${input_psql_db:-$psql_db}"
 
 	psql_passwd="ChangeMeNow"
-	read -e -i "$psql_passwd" -p "Пароль Postgres(пользователь userside): " input_psql_passwd
+	read -e -i "$psql_passwd" -p "Пароль Postgres: " input_psql_passwd
 	psql_passwd="${input_psql_passwd:-$psql_passwd}"
     
     mysql_root_passwd="ChangeMeNow"
-	read -e -i "$mysql_root_passwd" -p "Пароль MySQL(пользователь root): " input_mysql_root_passwd
+	read -e -i "$mysql_root_passwd" -p "Пароль root-а MySQL: " input_mysql_root_passwd
 	mysql_root_passwd="${input_mysql_root_passwd:-$mysql_root_passwd}"
+    
+    mysql_user="userside"
+	read -e -i "$mysql_user" -p "Пользователь MySQL: " input_mysql_user
+	mysql_user="${input_mysql_user:-$mysql_user}"
+    
+    mysql_db="userside"
+	read -e -i "$mysql_db" -p "База MySQL: " input_mysql_db
+	mysql_db="${input_mysql_db:-$mysql_db}"
 
     mysql_passwd="ChangeMeNow"
-	read -e -i "$mysql_passwd" -p "Пароль MySQL(пользователь userside): " input_mysql_passwd
+	read -e -i "$mysql_passwd" -p "Пароль пользователя MySQL: " input_mysql_passwd
 	mysql_passwd="${input_mysql_passwd:-$mysql_passwd}"
 
 printf 'Выполняется установка и настройка компонентов '
@@ -196,11 +222,11 @@ install_all
 enable_all
 site_add $domain $admin_email
 run_all
-settings_postgres $psql_passwd
-settings_mysql $mysql_root_passwd $mysql_passwd
+settings_postgres $psql_user $psql_passwd $psql_db
+settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
 settings_crontab
 
 kill "$!" > /dev/null # kill the spinner
 printf '\n'
 
-install_userside
+install_userside $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
