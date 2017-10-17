@@ -83,15 +83,15 @@ install_all(){
 }
 
 enable_apache(){
-	systemctl enable httpd > /dev/null
+	systemctl enable httpd
 }
 
 enable_mysql(){
-	systemctl enable mariadb > /dev/null
+	systemctl enable mariadb
 }
 
 enable_postgres(){
-	systemctl enable postgresql-10 > /dev/null
+	systemctl enable postgresql-10
 }
 
 enable_all(){
@@ -214,7 +214,7 @@ spinner &
 
 set_lang
 install_all &> /dev/null
-enable_all
+enable_all &> /dev/null
 site_add $domain $admin_email
 run_all
 settings_postgres $psql_user $psql_passwd $psql_db
