@@ -221,7 +221,7 @@ settings_postgres $psql_user $psql_passwd $psql_db
 settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
 settings_crontab
 
-kill "$!" > /dev/null # kill the spinner
+kill "$!" &> /dev/null # kill the spinner
 printf '\n'
 
 install_userside $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
