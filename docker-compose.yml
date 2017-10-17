@@ -9,5 +9,5 @@ services:
     - "3306:3306/tcp"
     privileged: true
     volumes:
-    - /home/black/tmp:/opt/tmp
+    - .:/opt/tmp
     - /sys/fs/cgroup:/sys/fs/cgroup:ro
