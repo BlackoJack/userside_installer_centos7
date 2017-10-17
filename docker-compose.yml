@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  centos:
+    restart: always
+    image: centos/systemd
+    ports:
+    - "80:80/tcp"
+    - "3306:3306/tcp"
+    privileged: true
+    volumes:
+    - /home/black/tmp:/opt/tmp
+    - /sys/fs/cgroup:/sys/fs/cgroup:ro
