@@ -37,11 +37,15 @@ install_apache(){
 }
 
 install_mysql(){
-	yum -y -q install https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm > /dev/null
-	rpm --quiet --import /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql > /dev/null
-	rm -f mysql57-community-release-el7-11.noarch.rpm
-	yum -y -q install mysql-server > /dev/null
-	echo 'max_allowed_packet = 10M' >> /etc/my.cnf
+  cat <<EOL > /etc/yum.repos.d/mariadb.repo
+    [mariadb]
+    name = MariaDB
+    baseurl = http://yum.mariadb.org/10.2/centos7-amd64
+    gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    gpgcheck=1
+EOL
+	rpm --quiet --import https://yum.mariadb.org/RPM-GPG-KEY-MariaDB > /dev/null
+  yum -y -q install MariaDB-server MariaDB-client > /dev/null
 }
 
 install_postgres(){
@@ -78,7 +82,7 @@ enable_apache(){
 }
 
 enable_mysql(){
-	systemctl enable mysqld > /dev/null
+	systemctl enable mariadb > /dev/null
 }
 
 enable_postgres(){
@@ -114,7 +118,7 @@ run_apache(){
 }
 
 run_mysql(){
-	systemctl start mysqld > /dev/null
+	systemctl start mariadb > /dev/null
 }
 
 run_postgres(){
@@ -146,9 +150,7 @@ EOF
 }
 
 settings_mysql(){
-	grep 'temporary password' /var/log/mysqld.log
-	echo "Введите временный пароль от MySQL (строчка выше), а потом задайте и запомните сложный!!! пароль (какого-то хера четыре раза)"
-	mysql_secure_installation -p
+	mysql_secure_installation
 	echo "Введите ваш пароль от MySQL"
 	mysql -uroot -p -e "CREATE DATABASE \`userside\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
 }
