@@ -156,7 +156,7 @@ settings_postgres(){
     send "$psql_passwd\n"
     expect eof
 EOF
-	sudo -u postgres createdb -e -E "UTF-8" -l "ru_RU.UTF-8" -O $psql_db -T template0 $psql_db > /dev/null
+	sudo -u postgres createdb -e -E "UTF-8" -l "ru_RU.UTF-8" -O $psql_user -T template0 $psql_db > /dev/null
 	sudo -u postgres psql -d $psql_db -c "CREATE EXTENSION postgis" > /dev/null
 }
 
