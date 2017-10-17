@@ -175,10 +175,10 @@ Set root password? \[Y/n\] "
 send -- "Y\r"
 expect -exact "Y\r
 New password: "
-send "$mysq_root_passwd\n"
+send -- "$mysq_root_passwd\r"
 expect -exact "\r
 Re-enter new password: "
-send "$mysq_root_passwd\n"
+send -- "$mysq_root_passwd\r"
 expect -exact "\r
 Password updated successfully!\r
 Reloading privilege tables..\r
@@ -266,8 +266,8 @@ enable_all
 site_add $domain
 run_all
 settings_postgres $psql_passwd
+settings_mysql $mysql_root_passwd $mysql_passwd
 settings_crontab
-settings_mysql
 
 kill "$!" > /dev/null # kill the spinner
 printf '\n'
