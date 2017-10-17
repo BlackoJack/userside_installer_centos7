@@ -14,26 +14,23 @@ spinner() {
 }
 
 install_utils(){
-	rpm --quiet --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 > /dev/null
-	yum -y -q install expect dialog wget sudo > /dev/null
+	yum -y -q install expect dialog wget sudo
 }
 
 install_epel(){
-	yum -y -q install epel-release &> /dev/null
-	rpm --quiet --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 > /dev/null
+	yum -y -q install epel-release
 }
 
 install_webtatic(){
-	yum -y -q install https://mirror.webtatic.com/yum/el7/webtatic-release.rpm > /dev/null
-	rpm --quiet --import /etc/pki/rpm-gpg/RPM-GPG-KEY-webtatic-el7 > /dev/null
+	yum -y -q install https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
 }
 
 install_php7_apache(){
-	yum install -y -q php71w mod_php71w php71w-cli php71w-common php71w-gd php71w-mbstring php71w-mcrypt php71w-mysqlnd php71w-xml php71w-intl php71w-pdo php71w-snmp php71w-xml php71w-soap php71w-pgsql > /dev/null
+	yum install -y -q php71w mod_php71w php71w-cli php71w-common php71w-gd php71w-mbstring php71w-mcrypt php71w-mysqlnd php71w-xml php71w-intl php71w-pdo php71w-snmp php71w-xml php71w-soap php71w-pgsql
 }
 
 install_apache(){
-	yum -y -q install httpd > /dev/null
+	yum -y -q install httpd
 }
 
 install_mysql(){
@@ -44,19 +41,17 @@ baseurl = http://yum.mariadb.org/10.2/centos7-amd64
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 EOF
-	rpm --quiet --import https://yum.mariadb.org/RPM-GPG-KEY-MariaDB > /dev/null
-  	yum -y -q install MariaDB-server MariaDB-client > /dev/null
+  	yum -y -q install MariaDB-server MariaDB-client
 }
 
 install_postgres(){
-	yum -y -q install https://download.postgresql.org/pub/repos/yum/testing/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm > /dev/null
-	rpm --quiet --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PGDG-10 > /dev/null
-	yum -y -q install postgresql10 postgresql10-server > /dev/null
-	/usr/pgsql-10/bin/postgresql-10-setup initdb > /dev/null
+	yum -y -q install https://download.postgresql.org/pub/repos/yum/testing/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
+	yum -y -q install postgresql10 postgresql10-server
+	/usr/pgsql-10/bin/postgresql-10-setup initdb
 }
 
 install_postgis(){
-	yum -y -q install postgis2_10 > /dev/null
+	yum -y -q install postgis2_10
 }
 
 install_userside(){
@@ -218,7 +213,7 @@ printf 'Выполняется установка и настройка комп
 spinner &
 
 set_lang
-install_all
+install_all &> /dev/null
 enable_all
 site_add $domain $admin_email
 run_all
