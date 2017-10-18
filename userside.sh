@@ -13,13 +13,6 @@ spinner() {
     done
 }
 
-disable_ipv6(){
-	echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
-	sysctl -w net.ipv6.conf.all.disable_ipv6=1
-	sysctl -w net.ipv6.conf.default.disable_ipv6=1
-}
-
 install_utils(){
 	yum -y -q install expect dialog wget sudo
 }
@@ -159,7 +152,7 @@ set_lang(){
 }
 
 pre_settings_postgres(){
-	echo "host    $psql_db    $psql_user    127.0.0.1/32    trust" >> /var/lib/pgsql/10/data/pg_hba.conf
+	sed -i '80,84s/ident/trust/' /var/lib/pgsql/10/data/pg_hba.conf
 }
 
 pre_settings_mysql(){
@@ -175,6 +168,18 @@ character-set-server=utf8
 init-connect='SET NAMES utf8'
 collation-server=utf8_general_ci
 EOF
+}
+
+post_settings_mysql(){
+	cat <<EOF > /etc/my.cnf.d/timezone.cnf
+[mysqld]
+default-time-zone=Asia/Novosibirsk
+EOF
+	systemctl restart mysqld
+}
+
+settings_php(){
+	sed -i 's/;date.timezone =/date.timezone =Asia\/Novosibirsk/' /etc/php.ini
 }
 
 settings_postgres(){
@@ -202,7 +207,13 @@ settings_mysql(){
     send "$mysql_root_passwd\n"
     expect eof
 EOF
-
+/usr/bin/expect<<EOF
+    log_user 0
+		spawn mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p
+		expect "Enter password:"
+    send "$mysql_root_passwd\n"
+    expect eof
+EOF
 }
 
 settings_crontab(){
@@ -258,17 +269,18 @@ echo -en "${BGBLACK}${LYELLOW}Выполняется установка и на�
 spinner &
 spinner_pid=$!
 
-#disable_ipv6 > /dev/null
 set_lang
 install_all &> /dev/null
 enable_all &> /dev/null
 site_add $domain $admin_email $www_dir
-#pre_settings_postgres $psql_db $psql_user
+pre_settings_postgres
 pre_settings_mysql
+settings_php
 run_all
 settings_postgres $psql_user $psql_passwd $psql_db
 settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
 settings_crontab $www_dir
+post_settings_mysql > /dev/null
 
 kill $spinner_pid &> /dev/null
 printf '\n'
