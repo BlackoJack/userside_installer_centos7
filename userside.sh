@@ -13,6 +13,13 @@ spinner() {
     done
 }
 
+disable_ipv6(){
+	echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
+	sysctl -w net.ipv6.conf.all.disable_ipv6=1
+	sysctl -w net.ipv6.conf.default.disable_ipv6=1
+}
+
 install_utils(){
 	yum -y -q install expect dialog wget sudo
 }
@@ -251,11 +258,12 @@ echo -en "${BGBLACK}${LYELLOW}Выполняется установка и на�
 spinner &
 spinner_pid=$!
 
+#disable_ipv6 > /dev/null
 set_lang
 install_all &> /dev/null
 enable_all &> /dev/null
 site_add $domain $admin_email $www_dir
-pre_settings_postgres $psql_db $psql_user
+#pre_settings_postgres $psql_db $psql_user
 pre_settings_mysql
 run_all
 settings_postgres $psql_user $psql_passwd $psql_db
