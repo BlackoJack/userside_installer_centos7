@@ -155,6 +155,21 @@ pre_settings_postgres(){
 	echo "host    $psql_db    $psql_user    127.0.0.1/32    md5" >> /var/lib/pgsql/10/data/pg_hba.conf
 }
 
+pre_settings_mysql(){
+	cat <<EOF > /etc/my.cnf.d/charset.cnf
+[client]
+default-character-set=utf8
+
+[mysql]
+default-character-set=utf8
+
+[mysqld]
+character-set-server=utf8
+init-connect='SET NAMES utf8'
+collation-server=utf8_general_ci
+EOF
+}
+
 settings_postgres(){
 /usr/bin/expect<<EOF
     log_user 0
@@ -241,6 +256,7 @@ install_all &> /dev/null
 enable_all &> /dev/null
 site_add $domain $admin_email $www_dir
 pre_settings_postgres $psql_db $psql_user
+pre_settings_mysql
 run_all
 settings_postgres $psql_user $psql_passwd $psql_db
 settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
