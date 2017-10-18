@@ -111,15 +111,15 @@ enable_postgres
 }
 
 site_add(){
-	mkdir -p $www_dir > /dev/null
+	mkdir -p $www_dir/userside3 > /dev/null
 	cat <<EOF > /etc/httpd/conf.d/userside.conf
 <VirtualHost *:80>
    ServerAdmin $admin_email
-   DocumentRoot "$www_dir"
+   DocumentRoot "$www_dir/userside3"
    ServerName $domain
    ErrorLog "/var/log/httpd/userside-main-error.log"
    CustomLog "/var/log/httpd/userside-main-access.log" common
-   <Directory "$www_dir">
+   <Directory "$www_dir/userside3">
        Options -Indexes
        AllowOverride All
        Require all granted
