@@ -55,8 +55,9 @@ install_postgis(){
 }
 
 install_userside(){
-	cd /var/www/userside && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
+	cd $www_dir && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
     echo "Воспользуйтесь этими данными, для установки Userside:"
+    echo "Директория установки: "$www_dir
 	echo "Хост MySQL: localhost"
     echo "Порт MySQL: 3306"
     echo "Пользователь MySQL: "$mysql_user
@@ -67,8 +68,8 @@ install_userside(){
     echo "Пользователь Postgres: "$psql_user
     echo "Пароль Postgres: "$psql_passwd
     echo "База Postgres: "$psql_db
-	cd /var/www/userside && php userside_install.phar
-	chown -hR apache:apache /var/www/userside > /dev/null
+	cd $www_dir && php userside_install.phar
+	chown -hR apache:apache $www_dir > /dev/null
 }
 
 install_all(){
@@ -101,15 +102,15 @@ enable_postgres
 }
 
 site_add(){
-	mkdir -p /var/www/userside > /dev/null
+	mkdir -p $www_dir > /dev/null
 	cat <<EOF > /etc/httpd/conf.d/userside.conf
 <VirtualHost *:80>
    ServerAdmin $admin_email
-   DocumentRoot "/var/www/userside"
+   DocumentRoot "$www_dir"
    ServerName $domain
    ErrorLog "/var/log/httpd/userside-main-error.log"
    CustomLog "/var/log/httpd/userside-main-access.log" common
-   <Directory "/var/www/userside">
+   <Directory "$www_dir">
        Options -Indexes
        AllowOverride All
        Require all granted
@@ -170,8 +171,12 @@ EOF
 }
 
 settings_crontab(){
-	echo '* * * * *   www-data   php /var/www/userside/userside cron > /dev/null 2>&1'  >> /etc/crontab
+	echo '* * * * *   www-data   php $www_dir/userside cron > /dev/null 2>&1'  >> /etc/crontab
 }
+
+	www_dir="/var/www/userside"
+    read -e -i "$www_dir" -p "Директория установки сайта Userside: " input_www_dir
+	www_dir="${input_www_dir:-$www_dir}"
 
 	domain="userside.sibdata.ru"
 	read -e -i "$domain" -p "Домен сайта Userside: " input_domain
@@ -216,13 +221,13 @@ spinner_pid=$!
 set_lang
 install_all &> /dev/null
 enable_all &> /dev/null
-site_add $domain $admin_email
+site_add $domain $admin_email $www_dir
 run_all
 settings_postgres $psql_user $psql_passwd $psql_db
 settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
-settings_crontab
+settings_crontab $www_dir
 
 kill $spinner_pid &>/dev/null
 printf '\n'
 
-install_userside $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
+install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
