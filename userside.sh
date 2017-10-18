@@ -58,7 +58,7 @@ install_userside(){
 	cd $www_dir && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
     echo "Воспользуйтесь этими данными, для установки Userside:"
     echo "Директория установки: "$www_dir
-	echo "Хост MySQL: localhost"
+		echo "Хост MySQL: localhost"
     echo "Порт MySQL: 3306"
     echo "Пользователь MySQL: "$mysql_user
     echo "Пароль MySQL: "$mysql_passwd
@@ -175,42 +175,42 @@ settings_crontab(){
 }
 
 	www_dir="/var/www/userside"
-    read -e -i "$www_dir" -p "Директория установки сайта Userside: " input_www_dir
+  read -e -i "$www_dir" -p "Директория установки сайта Userside: " input_www_dir
 	www_dir="${input_www_dir:-$www_dir}"
 
 	domain="userside.sibdata.ru"
 	read -e -i "$domain" -p "Домен сайта Userside: " input_domain
 	domain="${input_domain:-$domain}"
-    
-    admin_email="admin@sibdata.ru"
+
+  admin_email="admin@sibdata.ru"
 	read -e -i "$admin_email" -p "E-Mail администратора: " input_admin_email
 	admin_email="${input_admin_email:-$admin_email}"
-    
-    psql_user="userside"
+
+  psql_user="userside"
 	read -e -i "$psql_user" -p "Пользователь Postgres: " input_psql_user
 	psql_user="${input_psql_user:-$psql_user}"
-    
-    psql_db="userside"
+
+  psql_db="userside"
 	read -e -i "$psql_db" -p "База Postgres: " input_psql_db
 	psql_db="${input_psql_db:-$psql_db}"
 
 	psql_passwd="ChangeMeNow"
 	read -e -i "$psql_passwd" -p "Пароль Postgres: " input_psql_passwd
 	psql_passwd="${input_psql_passwd:-$psql_passwd}"
-    
-    mysql_root_passwd="ChangeMeNow"
+
+  mysql_root_passwd="ChangeMeNow"
 	read -e -i "$mysql_root_passwd" -p "Пароль root-а MySQL: " input_mysql_root_passwd
 	mysql_root_passwd="${input_mysql_root_passwd:-$mysql_root_passwd}"
-    
-    mysql_user="userside"
+
+  mysql_user="userside"
 	read -e -i "$mysql_user" -p "Пользователь MySQL: " input_mysql_user
 	mysql_user="${input_mysql_user:-$mysql_user}"
-    
-    mysql_db="userside"
+
+  mysql_db="userside"
 	read -e -i "$mysql_db" -p "База MySQL: " input_mysql_db
 	mysql_db="${input_mysql_db:-$mysql_db}"
 
-    mysql_passwd="ChangeMeNow"
+  mysql_passwd="ChangeMeNow"
 	read -e -i "$mysql_passwd" -p "Пароль пользователя MySQL: " input_mysql_passwd
 	mysql_passwd="${input_mysql_passwd:-$mysql_passwd}"
 
