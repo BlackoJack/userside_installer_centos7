@@ -45,7 +45,7 @@ EOF
 }
 
 install_postgres(){
-	yum -y -q install https://download.postgresql.org/pub/repos/yum/testing/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
+	yum -y -q install https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
 	yum -y -q install postgresql10 postgresql10-server
 	/usr/pgsql-10/bin/postgresql-10-setup initdb
 }
@@ -152,7 +152,7 @@ set_lang(){
 }
 
 pre_settings_postgres(){
-	echo 'host    $psql_db    $psql_user    127.0.0.1/32    md5' >> /var/lib/pgsql/10/data/pg_hba.conf
+	echo "host    $psql_db    $psql_user    127.0.0.1/32    md5" >> /var/lib/pgsql/10/data/pg_hba.conf
 }
 
 settings_postgres(){
@@ -184,7 +184,7 @@ EOF
 }
 
 settings_crontab(){
-	echo '* * * * *   www-data   php $www_dir/userside cron > /dev/null 2>&1'  >> /etc/crontab
+	echo "* * * * *   www-data   php $www_dir/userside cron > /dev/null 2>&1"  >> /etc/crontab
 }
 
 	www_dir="/var/www/userside"
@@ -227,7 +227,12 @@ settings_crontab(){
 	read -e -i "$mysql_passwd" -p "Пароль пользователя MySQL: " input_mysql_passwd
 	mysql_passwd="${input_mysql_passwd:-$mysql_passwd}"
 
-printf 'Выполняется установка и настройка компонентов '
+	LYELLOW='\033[1;33m'
+	LRED='\033[1;31m'
+	BGBLACK='\033[40m'
+	NORMAL='\033[0m'
+
+echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
 spinner &
 spinner_pid=$!
 
