@@ -151,6 +151,10 @@ set_lang(){
 	localectl set-locale LANG=ru_RU.UTF-8 > /dev/null
 }
 
+pre_settings_postgres(){
+	echo 'host    $psql_db    $psql_user    127.0.0.1/32    md5' >> /var/lib/pgsql/10/data/pg_hba.conf
+}
+
 settings_postgres(){
 /usr/bin/expect<<EOF
     log_user 0
@@ -231,6 +235,7 @@ set_lang
 install_all &> /dev/null
 enable_all &> /dev/null
 site_add $domain $admin_email $www_dir
+pre_settings_postgres $psql_db $psql_user
 run_all
 settings_postgres $psql_user $psql_passwd $psql_db
 settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
