@@ -55,9 +55,20 @@ install_postgis(){
 }
 
 install_userside(){
+
+	LYELLOW='\033[1;33m'
+	LGREEN='\033[1;32m'
+	LRED='\033[1;31m'
+	BGBLACK='\033[40m'
+	BGCYAN='\033[46m'
+	BGGREEN='\033[42m'
+	BGBROWN='\033[43m'
+	NORMAL='\033[0m'
+
+
 	cd $www_dir && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
-    echo "Воспользуйтесь этими данными, для установки Userside:"
-    echo "Директория установки: "$www_dir
+    echo "${BGBROWN}${LYELLOW}Воспользуйтесь этими данными, для установки Userside:${NORMAL}"
+    echo "${BGBLACK}${LGREEN}Директория установки: "${LRED}$www_dir${NORMAL}
 		echo "Хост MySQL: localhost"
     echo "Порт MySQL: 3306"
     echo "Пользователь MySQL: "$mysql_user
