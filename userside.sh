@@ -152,7 +152,7 @@ set_lang(){
 }
 
 pre_settings_postgres(){
-	echo "host    $psql_db    $psql_user    127.0.0.1/32    md5" >> /var/lib/pgsql/10/data/pg_hba.conf
+	echo "host    $psql_db    $psql_user    127.0.0.1/32    trust" >> /var/lib/pgsql/10/data/pg_hba.conf
 }
 
 pre_settings_mysql(){
