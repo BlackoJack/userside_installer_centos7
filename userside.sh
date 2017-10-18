@@ -60,25 +60,21 @@ install_userside(){
 	LGREEN='\033[1;32m'
 	LRED='\033[1;31m'
 	BGBLACK='\033[40m'
-	BGCYAN='\033[46m'
-	BGGREEN='\033[42m'
-	BGBROWN='\033[43m'
 	NORMAL='\033[0m'
 
-
 	cd $www_dir && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
-    echo "${BGBROWN}${LYELLOW}Воспользуйтесь этими данными, для установки Userside:${NORMAL}"
-    echo "${BGBLACK}${LGREEN}Директория установки: "${LRED}$www_dir${NORMAL}
-		echo "Хост MySQL: localhost"
-    echo "Порт MySQL: 3306"
-    echo "Пользователь MySQL: "$mysql_user
-    echo "Пароль MySQL: "$mysql_passwd
-    echo "База MySQL: "$mysql_db
-    echo "Хост Postgres: localhost"
-    echo "Порт Postgres: 5042"
-    echo "Пользователь Postgres: "$psql_user
-    echo "Пароль Postgres: "$psql_passwd
-    echo "База Postgres: "$psql_db
+    echo -e "${BGBROWN}${LYELLOW}Воспользуйтесь этими данными, для установки Userside:${NORMAL}"
+    echo -e "${BGBLACK}${LGREEN}Директория установки: "${LRED}$www_dir${NORMAL}
+		echo -e "${BGBLACK}${LGREEN}Хост MySQL: ${LRED}localhost"${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}Порт MySQL: ${LRED}3306"${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}Пользователь MySQL: "${LRED}$mysql_user${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}Пароль MySQL: "${LRED}$mysql_passwd${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}База MySQL: "${LRED}$mysql_db${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}Хост Postgres: ${LRED}localhost"${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}Порт Postgres: ${LRED}5042"${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}Пользователь Postgres: "${LRED}$psql_user${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}Пароль Postgres: "${LRED}$psql_passwd${NORMAL}
+    echo -e "${BGBLACK}${LGREEN}База Postgres: "${LRED}$psql_db${NORMAL}
 	cd $www_dir && php userside_install.phar
 	chown -hR apache:apache $www_dir > /dev/null
 }
@@ -225,7 +221,11 @@ settings_crontab(){
 	read -e -i "$mysql_passwd" -p "Пароль пользователя MySQL: " input_mysql_passwd
 	mysql_passwd="${input_mysql_passwd:-$mysql_passwd}"
 
-printf 'Выполняется установка и настройка компонентов '
+	LYELLOW='\033[1;33m'
+	BGBLACK='\033[40m'
+	NORMAL='\033[0m'
+
+echo -e '${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов '${NORMAL}
 spinner &
 spinner_pid=$!
 
@@ -239,6 +239,6 @@ settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
 settings_crontab $www_dir
 
 kill $spinner_pid &>/dev/null
-printf '\n'
+echo '\n'
 
 install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
