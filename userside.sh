@@ -3,6 +3,16 @@
 # Скрипт установки Userside
 #
 
+spinner() {
+  local i sp n
+  sp='/-\|'
+  n=${#sp}
+  printf ' '
+  while sleep 0.1; do
+    printf "%s\b" "${sp:i++%n:1}"
+  done
+}
+
 install_utils(){
   yum -y -q install expect dialog wget sudo
 }
@@ -44,15 +54,13 @@ install_postgis(){
   yum -y -q install postgis2_10
 }
 
-install_userside(){
-
+echo_settings(){
   LYELLOW='\033[1;33m'
   LGREEN='\033[1;32m'
   LRED='\033[1;31m'
   BGBLACK='\033[40m'
   NORMAL='\033[0m'
 
-  cd $www_dir && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
   echo ""
   echo -e "${BGBLACK}${LYELLOW}Воспользуйтесь этими данными, для установки Userside:${NORMAL}"
   echo -e "${BGBLACK}${LGREEN}Директория установки: "${LRED}$www_dir${NORMAL}
@@ -67,6 +75,10 @@ install_userside(){
   echo -e "${BGBLACK}${LGREEN}Пароль Postgres: "${LRED}$psql_passwd${NORMAL}
   echo -e "${BGBLACK}${LGREEN}База Postgres: "${LRED}$psql_db${NORMAL}
   echo ""
+}
+
+install_userside(){
+  cd $www_dir && php -r "copy('http://my.userside.eu/install', 'userside_install.phar');"
   cd $www_dir && php userside_install.phar
   chown -hR apache:apache $www_dir > /dev/null
 }
@@ -217,9 +229,14 @@ BGBLACK='\033[40m'
 NORMAL='\033[0m'
 
 echo -en "${BGBLACK}${LYELLOW}Подготовка скрипта. ${LRED} Ожидайте. "${NORMAL}
+spinner &
+spinner_pid=$!
 
 set_lang
 install_utils &> /dev/null
+
+kill $spinner_pid &> /dev/null
+printf '\n'
 
 www_dir="/var/www/userside"
 domain="userside.example.com"
@@ -270,6 +287,9 @@ dialog --ok-label "Сохранить" \
   NORMAL='\033[0m'
 
   echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
+  spinner &
+  spinner_pid=$!
+
 
   set_timezone $time_zone
   install_all &> /dev/null
@@ -283,8 +303,12 @@ dialog --ok-label "Сохранить" \
   settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
   settings_crontab $www_dir
   post_settings_mysql $time_zone > /dev/null
-  install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
+  echo_settings $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
 
+  kill $spinner_pid &> /dev/null
+  printf '\n'
 }
 
 exec 3>&-
+
+install_userside
