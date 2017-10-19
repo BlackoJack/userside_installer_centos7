@@ -3,16 +3,6 @@
 # Скрипт установки Userside
 #
 
-spinner() {
-  local i sp n
-  sp='/-\|'
-  n=${#sp}
-  printf ' '
-  while sleep 0.1; do
-    printf "%s\b" "${sp:i++%n:1}"
-  done
-}
-
 install_utils(){
   yum -y -q install expect dialog wget sudo
 }
@@ -220,6 +210,13 @@ settings_crontab(){
   echo "* * * * *   www-data   php $www_dir/userside cron > /dev/null 2>&1"  >> /etc/crontab
 }
 
+LYELLOW='\033[1;33m'
+LRED='\033[1;31m'
+BGBLACK='\033[40m'
+NORMAL='\033[0m'
+
+echo -en "${BGBLACK}${LYELLOW}Подготовка скрипта. ${LRED} Ожидайте. "${NORMAL}
+
 set_lang
 install_utils &> /dev/null
 
@@ -272,9 +269,6 @@ dialog --ok-label "Сохранить" \
   NORMAL='\033[0m'
 
   echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
-  spinner &
-  spinner_pid=$!
-
 
   set_timezone $time_zone
   install_all &> /dev/null
@@ -288,12 +282,8 @@ dialog --ok-label "Сохранить" \
   settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
   settings_crontab $www_dir
   post_settings_mysql $time_zone > /dev/null
-
-  kill $spinner_pid
-  printf '\n'
-
   install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
-  
+
 }
 
 exec 3>&-
