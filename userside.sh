@@ -287,7 +287,7 @@ settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
 settings_crontab $www_dir
 post_settings_mysql $time_zone > /dev/null
 
-kill -INT $spinner_pid &>/dev/null
+kill -9 $spinner_pid 2>/dev/null
 printf '\n'
 
 install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
