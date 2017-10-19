@@ -82,7 +82,6 @@ install_userside(){
 }
 
 install_all(){
-  install_utils
   install_epel
   install_webtatic
   install_apache
@@ -219,6 +218,8 @@ EOF
 settings_crontab(){
   echo "* * * * *   www-data   php $www_dir/userside cron > /dev/null 2>&1"  >> /etc/crontab
 }
+
+install_utils > /dev/null
 
 www_dir="/var/www/userside"
 domain="userside.example.com"
