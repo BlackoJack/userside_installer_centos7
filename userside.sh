@@ -136,9 +136,10 @@ run_all(){
 }
 
 set_lang(){
-  localedef -i ru_RU -f UTF-8 ru_RU.UTF-8 > /dev/null
-  localectl set-locale LANG=ru_RU.UTF-8 > /dev/null
+  localedef -i ru_RU -f UTF-8 ru_RU.UTF-8
+  localectl set-locale LANG=ru_RU.UTF-8
   localectl set-keymap ru
+  export LANG=ru_RU.UTF-8
 }
 
 set_timezone(){
