@@ -183,7 +183,7 @@ EOF
 }
 
 settings_php(){
-  sed -i "s/;date.timezone =/date.timezone =$time_zone/" /etc/php.ini
+  sed -i "s|;date.timezone =|date.timezone =$time_zone|" /etc/php.ini
 }
 
 settings_postgres(){
