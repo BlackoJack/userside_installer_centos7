@@ -208,7 +208,7 @@ settings_mysql(){
     expect eof
 EOF
 /usr/bin/expect<<EOF
-    log_user 0
+
 		spawn mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p
 		expect "Enter password:"
     send "$mysql_root_passwd\n"
