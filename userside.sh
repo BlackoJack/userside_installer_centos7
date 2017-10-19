@@ -250,7 +250,7 @@ mysql_passwd="ChangeMeNow"
 mysql_user="userside"
 mysql_db="userside"
 
-exec 3>&1
+
 
 dialog --ok-label "Сохранить" \
 --backtitle "Установка Userside" \
@@ -268,7 +268,7 @@ dialog --ok-label "Сохранить" \
 "Пользователь MySQL:"			9 1	"$mysql_user" 	9 45 25 0 \
 "База MySQL:"				10 1	"$mysql_db" 	10 45 25 0 \
 "Пароль пользователя MySQL:"		11 1	"$mysql_passwd" 	11 45 25 0 \
-2>&1 1>&3 | {
+| {
   read -r www_dir
   read -r domain
   read -r admin_email
@@ -315,6 +315,6 @@ dialog --ok-label "Сохранить" \
 
 }
 
-exec 3>&-
+
 
 install_userside
