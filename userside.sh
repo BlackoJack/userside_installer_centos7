@@ -148,6 +148,7 @@ run_all(){
 set_lang(){
   localedef -i ru_RU -f UTF-8 ru_RU.UTF-8 > /dev/null
   localectl set-locale LANG=ru_RU.UTF-8 > /dev/null
+  localectl set-keymap ru
 }
 
 set_timezone(){
@@ -264,34 +265,35 @@ dialog --ok-label "Сохранить" \
   read -r mysql_user
   read -r mysql_db
   read -r mysql_passwd
+
+  LYELLOW='\033[1;33m'
+  LRED='\033[1;31m'
+  BGBLACK='\033[40m'
+  NORMAL='\033[0m'
+
+  echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
+  spinner &
+  spinner_pid=$!
+
+
+  set_timezone $time_zone
+  install_all &> /dev/null
+  enable_all &> /dev/null
+  site_add $domain $admin_email $www_dir
+  pre_settings_postgres
+  pre_settings_mysql
+  settings_php $time_zone
+  run_all
+  settings_postgres $psql_user $psql_passwd $psql_db
+  settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
+  settings_crontab $www_dir
+  post_settings_mysql $time_zone > /dev/null
+
+  kill $spinner_pid
+  printf '\n'
+
+  install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
+  
 }
 
 exec 3>&-
-
-LYELLOW='\033[1;33m'
-LRED='\033[1;31m'
-BGBLACK='\033[40m'
-NORMAL='\033[0m'
-
-echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
-spinner &
-spinner_pid=$!
-
-
-set_timezone $time_zone
-install_all &> /dev/null
-enable_all &> /dev/null
-site_add $domain $admin_email $www_dir
-pre_settings_postgres
-pre_settings_mysql
-settings_php $time_zone
-run_all
-settings_postgres $psql_user $psql_passwd $psql_db
-settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
-settings_crontab $www_dir
-post_settings_mysql $time_zone > /dev/null
-
-kill $spinner_pid
-printf '\n'
-
-install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
