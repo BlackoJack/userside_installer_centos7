@@ -219,6 +219,7 @@ settings_crontab(){
   echo "* * * * *   www-data   php $www_dir/userside cron > /dev/null 2>&1"  >> /etc/crontab
 }
 
+set_lang
 install_utils > /dev/null
 
 www_dir="/var/www/userside"
@@ -276,7 +277,7 @@ echo -en "${BGBLACK}${LYELLOW}Выполняется установка и на�
 spinner &
 spinner_pid=$!
 
-set_lang
+
 set_timezone $time_zone
 install_all &> /dev/null
 enable_all &> /dev/null
