@@ -156,7 +156,8 @@ set_timezone(){
 }
 
 pre_settings_postgres(){
-  sed -i '78,84s/ident/trust/' /var/lib/pgsql/10/data/pg_hba.conf
+  sed -i '80s/peer/trust/' /var/lib/pgsql/10/data/pg_hba.conf
+  sed -i '82,84s/ident/trust/' /var/lib/pgsql/10/data/pg_hba.conf
 }
 
 pre_settings_mysql(){
@@ -223,15 +224,15 @@ www_dir="/var/www/userside"
 read -e -i "$www_dir" -p "Директория установки сайта Userside: " input_www_dir
 www_dir="${input_www_dir:-$www_dir}"
 
-domain="userside.sibdata.ru"
+domain="userside.example.com"
 read -e -i "$domain" -p "Домен сайта Userside: " input_domain
 domain="${input_domain:-$domain}"
 
-admin_email="admin@sibdata.ru"
+admin_email="admin@example.com"
 read -e -i "$admin_email" -p "E-Mail администратора: " input_admin_email
 admin_email="${input_admin_email:-$admin_email}"
 
-time_zone="Asia/Novosibirsk"
+time_zone="Europe/Moscow"
 read -e -i "$time_zone" -p "Временная зона: " input_time_zone
 time_zone="${input_time_zone:-$time_zone}"
 
