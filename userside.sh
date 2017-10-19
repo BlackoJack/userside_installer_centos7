@@ -286,27 +286,33 @@ dialog --ok-label "Сохранить" \
   BGBLACK='\033[40m'
   NORMAL='\033[0m'
 
-  echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
-  spinner &
-  spinner_pid=$!
+  if test $? -eq 0
+  then
 
+    echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
+    spinner &
+    spinner_pid=$!
 
-  set_timezone $time_zone
-  install_all &> /dev/null
-  enable_all &> /dev/null
-  site_add $domain $admin_email $www_dir
-  pre_settings_postgres
-  pre_settings_mysql
-  settings_php $time_zone
-  run_all
-  settings_postgres $psql_user $psql_passwd $psql_db
-  settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
-  settings_crontab $www_dir
-  post_settings_mysql $time_zone > /dev/null
-  echo_settings $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
+    set_timezone $time_zone
+    install_all &> /dev/null
+    enable_all &> /dev/null
+    site_add $domain $admin_email $www_dir
+    pre_settings_postgres
+    pre_settings_mysql
+    settings_php $time_zone
+    run_all
+    settings_postgres $psql_user $psql_passwd $psql_db
+    settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
+    settings_crontab $www_dir
+    post_settings_mysql $time_zone > /dev/null
+    echo_settings $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
 
-  kill $spinner_pid &> /dev/null
-  printf '\n'
+    kill $spinner_pid &> /dev/null
+    printf '\n'
+  else
+    echo -en "${BGBLACK}${LRED}Операция отменена"${NORMAL}
+  fi
+
 }
 
 exec 3>&-
