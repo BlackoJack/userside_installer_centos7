@@ -220,7 +220,7 @@ settings_crontab(){
 }
 
 set_lang
-install_utils > /dev/null
+install_utils &> /dev/null
 
 www_dir="/var/www/userside"
 domain="userside.example.com"
