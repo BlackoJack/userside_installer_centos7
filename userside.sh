@@ -221,48 +221,50 @@ settings_crontab(){
 }
 
 www_dir="/var/www/userside"
-read -e -i "$www_dir" -p "Директория установки сайта Userside: " input_www_dir
-www_dir="${input_www_dir:-$www_dir}"
-
 domain="userside.example.com"
-read -e -i "$domain" -p "Домен сайта Userside: " input_domain
-domain="${input_domain:-$domain}"
-
 admin_email="admin@example.com"
-read -e -i "$admin_email" -p "E-Mail администратора: " input_admin_email
-admin_email="${input_admin_email:-$admin_email}"
-
 time_zone="Europe/Moscow"
-read -e -i "$time_zone" -p "Временная зона: " input_time_zone
-time_zone="${input_time_zone:-$time_zone}"
-
 psql_user="userside"
-read -e -i "$psql_user" -p "Пользователь Postgres: " input_psql_user
-psql_user="${input_psql_user:-$psql_user}"
-
 psql_db="userside"
-read -e -i "$psql_db" -p "База Postgres: " input_psql_db
-psql_db="${input_psql_db:-$psql_db}"
-
 psql_passwd="ChangeMeNow"
-read -e -i "$psql_passwd" -p "Пароль Postgres: " input_psql_passwd
-psql_passwd="${input_psql_passwd:-$psql_passwd}"
-
 mysql_root_passwd="ChangeMeNow"
-read -e -i "$mysql_root_passwd" -p "Пароль root-а MySQL: " input_mysql_root_passwd
-mysql_root_passwd="${input_mysql_root_passwd:-$mysql_root_passwd}"
-
-mysql_user="userside"
-read -e -i "$mysql_user" -p "Пользователь MySQL: " input_mysql_user
-mysql_user="${input_mysql_user:-$mysql_user}"
-
-mysql_db="userside"
-read -e -i "$mysql_db" -p "База MySQL: " input_mysql_db
-mysql_db="${input_mysql_db:-$mysql_db}"
-
 mysql_passwd="ChangeMeNow"
-read -e -i "$mysql_passwd" -p "Пароль пользователя MySQL: " input_mysql_passwd
-mysql_passwd="${input_mysql_passwd:-$mysql_passwd}"
+mysql_user="userside"
+mysql_db="userside"
+
+exec 3>&1
+
+dialog --ok-label "Сохранить" \
+--backtitle "Установка Userside" \
+--title "Настройки" \
+--form "Введите все данные" \
+20 90 0 \
+"Директория установки сайта Userside:"	1 1	"$www_dir" 	1 45 25 0 \
+"Домен сайта Userside:"			2 1	"$domain"  	2 45 25 0 \
+"E-Mail администратора:"			3 1	"$admin_email" 	3 45 25 0 \
+"Временная зона:"				4 1	"$time_zone" 	4 45 25 0 \
+"Пользователь Postgres:"			5 1	"$psql_user" 	5 45 25 0 \
+"База Postgres:"				6 1	"$psql_db" 	6 45 25 0 \
+"Пароль Postgres:"				7 1	"$psql_passwd" 	7 45 25 0 \
+"Пароль root-а MySQL:"			8 1	"$mysql_root_passwd" 	8 45 25 0 \
+"Пользователь MySQL:"			9 1	"$mysql_user" 	9 45 25 0 \
+"База MySQL:"				10 1	"$mysql_db" 	10 45 25 0 \
+"Пароль пользователя MySQL:"		11 1	"$mysql_passwd" 	11 45 25 0 \
+2>&1 1>&3 | {
+  read -r www_dir
+  read -r domain
+  read -r admin_email
+  read -r time_zone
+  read -r psql_user
+  read -r psql_db
+  read -r psql_passwd
+  read -r mysql_root_passwd
+  read -r mysql_user
+  read -r mysql_db
+  read -r mysql_passwd
+}
+
+exec 3>&-
 
 LYELLOW='\033[1;33m'
 LRED='\033[1;31m'
@@ -287,7 +289,7 @@ settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
 settings_crontab $www_dir
 post_settings_mysql $time_zone > /dev/null
 
-kill -9 $spinner_pid 2>/dev/null
+kill $spinner_pid
 printf '\n'
 
 install_userside $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
