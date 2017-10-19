@@ -207,9 +207,12 @@ settings_mysql(){
     send "$mysql_root_passwd\n"
     expect eof
 EOF
+
+  mysql_tzinfo_to_sql /usr/share/zoneinfo > /tmp/zone_import.sql
+
 /usr/bin/expect<<EOF
 
-		spawn mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -uroot mysql -p
+		spawn mysql -uroot -p mysql < /tmp/zone_import.sql
 		expect "Enter password:"
     send "$mysql_root_passwd\n"
     expect eof
