@@ -3,16 +3,6 @@
 # Скрипт установки Userside
 #
 
-spinner() {
-  local i sp n
-  sp='/-\|'
-  n=${#sp}
-  printf ' '
-  while sleep 0.1; do
-    printf "%s\b" "${sp:i++%n:1}"
-  done
-}
-
 install_utils(){
   yum -y -q install expect dialog wget sudo
 }
@@ -229,14 +219,9 @@ BGBLACK='\033[40m'
 NORMAL='\033[0m'
 
 echo -en "${BGBLACK}${LYELLOW}Подготовка скрипта. ${LRED} Ожидайте. "${NORMAL}
-spinner &
-spinner_pid=$!
 
 set_lang
 install_utils &> /dev/null
-
-kill $spinner_pid &> /dev/null
-printf '\n'
 
 www_dir="/var/www/userside"
 domain="userside.example.com"
@@ -250,7 +235,7 @@ mysql_passwd="ChangeMeNow"
 mysql_user="userside"
 mysql_db="userside"
 
-
+exec 3>&1
 
 dialog --ok-label "Сохранить" \
 --backtitle "Установка Userside" \
@@ -268,7 +253,7 @@ dialog --ok-label "Сохранить" \
 "Пользователь MySQL:"			9 1	"$mysql_user" 	9 45 25 0 \
 "База MySQL:"				10 1	"$mysql_db" 	10 45 25 0 \
 "Пароль пользователя MySQL:"		11 1	"$mysql_passwd" 	11 45 25 0 \
-| {
+2>&1 1>&3 | {
   read -r www_dir
   read -r domain
   read -r admin_email
@@ -290,8 +275,6 @@ dialog --ok-label "Сохранить" \
   then
 
     echo -en "${BGBLACK}${LYELLOW}Выполняется установка и настройка компонентов. ${LRED} Ничего не зависло! Потерпите! "${NORMAL}
-    spinner &
-    spinner_pid=$!
 
     set_timezone $time_zone
     install_all &> /dev/null
@@ -307,14 +290,12 @@ dialog --ok-label "Сохранить" \
     post_settings_mysql $time_zone > /dev/null
     echo_settings $www_dir $psql_user $psql_passwd $psql_db $mysql_user $mysql_passwd $mysql_db
 
-    kill $spinner_pid &> /dev/null
-    printf '\n'
   else
     echo -en "${BGBLACK}${LRED}Операция отменена"${NORMAL}
   fi
 
 }
 
-
+exec 3>&-
 
 install_userside
