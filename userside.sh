@@ -151,8 +151,12 @@ set_lang(){
   localectl set-locale LANG=ru_RU.UTF-8 > /dev/null
 }
 
+set_timezone(){
+  timedatectl set-timezone $time_zone
+}
+
 pre_settings_postgres(){
-  sed -i '80,84s/ident/trust/' /var/lib/pgsql/10/data/pg_hba.conf
+  sed -i '78,84s/ident/trust/' /var/lib/pgsql/10/data/pg_hba.conf
 }
 
 pre_settings_mysql(){
@@ -173,13 +177,13 @@ EOF
 post_settings_mysql(){
 	cat <<EOF > /etc/my.cnf.d/timezone.cnf
 [mysqld]
-default-time-zone=Asia/Novosibirsk
+default-time-zone=$time_zone
 EOF
   systemctl restart mysqld
 }
 
 settings_php(){
-  sed -i 's/;date.timezone =/date.timezone =Asia\/Novosibirsk/' /etc/php.ini
+  sed -i "s/;date.timezone =/date.timezone =$time_zone/" /etc/php.ini
 }
 
 settings_postgres(){
@@ -208,6 +212,7 @@ settings_mysql(){
     send "$mysql_root_passwd\n"
     expect eof
 EOF
+  rm /tmp/zone_import.sql
 }
 
 settings_crontab(){
@@ -225,6 +230,10 @@ domain="${input_domain:-$domain}"
 admin_email="admin@sibdata.ru"
 read -e -i "$admin_email" -p "E-Mail администратора: " input_admin_email
 admin_email="${input_admin_email:-$admin_email}"
+
+time_zone="Asia/Novosibirsk"
+read -e -i "$time_zone" -p "Временная зона: " input_time_zone
+time_zone="${input_time_zone:-$time_zone}"
 
 psql_user="userside"
 read -e -i "$psql_user" -p "Пользователь Postgres: " input_psql_user
@@ -264,17 +273,18 @@ spinner &
 spinner_pid=$!
 
 set_lang
+set_timezone $time_zone
 install_all &> /dev/null
 enable_all &> /dev/null
 site_add $domain $admin_email $www_dir
 pre_settings_postgres
 pre_settings_mysql
-settings_php
+settings_php $time_zone
 run_all
 settings_postgres $psql_user $psql_passwd $psql_db
 settings_mysql $mysql_user $mysql_root_passwd $mysql_passwd $mysql_db
 settings_crontab $www_dir
-post_settings_mysql > /dev/null
+post_settings_mysql $time_zone > /dev/null
 
 kill $spinner_pid &> /dev/null
 printf '\n'
