@@ -199,21 +199,12 @@ EOF
 settings_mysql(){
 
   mysqladmin -u root password $mysql_root_passwd
-
-/usr/bin/expect<<EOF
-    log_user 0
-    spawn mysql -uroot -p -e "CREATE DATABASE \`$mysql_db\` CHARACTER SET utf8 COLLATE utf8_general_ci; CREATE USER '$mysql_user'@'localhost' IDENTIFIED BY '$mysql_passwd'; GRANT ALL PRIVILEGES ON \`$mysql_db\` . * TO '$mysql_user'@'localhost'; FLUSH PRIVILEGES;"
-    expect "Enter password:"
-    send "$mysql_root_passwd\n"
-    expect eof
-EOF
-
   mysql_tzinfo_to_sql /usr/share/zoneinfo > /tmp/zone_import.sql
 
 /usr/bin/expect<<EOF
-
-		spawn mysql -uroot -p mysql < /tmp/zone_import.sql
-		expect "Enter password:"
+    log_user 0
+    spawn mysql -uroot -p -e "CREATE DATABASE \`$mysql_db\` CHARACTER SET utf8 COLLATE utf8_general_ci; CREATE USER '$mysql_user'@'localhost' IDENTIFIED BY '$mysql_passwd'; GRANT ALL PRIVILEGES ON \`$mysql_db\` . * TO '$mysql_user'@'localhost'; FLUSH PRIVILEGES; use mysql; source /tmp/zone_import.sql;"
+    expect "Enter password:"
     send "$mysql_root_passwd\n"
     expect eof
 EOF
